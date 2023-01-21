@@ -2,39 +2,48 @@
 #include <iostream>
 using namespace std;
 
-IntArray::IntArray(int length)
+template<class T>
+IntArray<T>::IntArray(int length)
 {
-   _length = length;
-   try
-   {
-       bad_length(length);
-   }
-   catch (const char* exception)
-   {
-       cout << " Ошибка : число " << length << exception << endl;
-   }
-   if (length > 0)
-       _data = new int[length]{};
+    _length = length;
+    try
+    {
+        bad_length(length);
+        _data = new T[length]{};
+    }
+    catch (MyException &exc)
+    {
+        cout << "An array exception occurred (" << exc.what() << " " << length  << " )" <<endl;
+    }
+    // добавим std::exception , вдруг памяти не хватит !
+    catch (exception &exc)
+    {
+        cout << "Some other std::exception occurred (" << exc.what() << " )" << endl;
+    }
 }
 
-void IntArray::clear()
+template<class T>
+void IntArray<T>::clear()
 {
     delete[] _data;
     _data = nullptr;
     _length = 0;
 }
 
-void IntArray::reallocate(int newLength)
+template<class T>
+void IntArray<T>::reallocate(int newLength)
 {
     clear();
 
     if (newLength <= 0) return;
 
-    _data = new int[newLength];
+   // _data = new int[newLength];
+    _data = new T[newLength];
     _length = newLength;
 }
 
-void IntArray::resize(int newLength)
+template<class T>
+void IntArray<T>::resize(int newLength)
 {
     if (newLength == _length) return;
     if (newLength <= 0)
@@ -42,7 +51,8 @@ void IntArray::resize(int newLength)
         clear();
         return;
     }
-    int* data{ new int[newLength] };
+   // int* data{ new int[newLength] };
+    T* data{ new T[newLength] };
     if (_length > 0)
     {
         int elementsToCopy{ (newLength > _length) ? _length : newLength };
@@ -52,20 +62,23 @@ void IntArray::resize(int newLength)
     delete[] _data;
     _data = data;
     _length = newLength;
-    }
+}
 
-void IntArray::insert(int value, int index)
+template<class T>
+void IntArray<T>::insert(T value, int index)
 {
     try
     {
         bad_range(index);
     }
-    catch (const char* exception)
+    catch (MyException &exc)
     {
-        cout << " Ошибка : число " << index << exception;
+        cout << "An array exception occurred (" << exc.what() << " " << index  << " )" <<endl;
     }
-    int* data{ new int[_length+1] };
 
+    //int* data{ new int[_length+1] };
+
+    T* data{ new T[_length+1] };
     for (int before{ 0 }; before < index; ++before)
         data[before] = _data[before];
 
@@ -79,15 +92,16 @@ void IntArray::insert(int value, int index)
     ++_length;
 }
 
-void IntArray::remove(int index)
+template<class T>
+void IntArray<T>::remove(int index)
 {
     try
     {
         bad_range(index);
     }
-    catch (const char* exception)
+    catch (MyException &exc)
     {
-        cout << " Ошибка : число " << index << exception << endl;
+        cout << "An array exception occurred (" << exc.what() << " " << index  << " )" <<endl;
     }
 
     if (_length == 1)
@@ -95,7 +109,8 @@ void IntArray::remove(int index)
         clear();
         return;
     }
-    int* data{ new int[_length-1] };
+    //int* data{ new int[_length-1] };
+    T* data{ new T[_length-1] };
     for (int before{ 0 }; before  < index; ++before)
         data[before] = _data[before];
     for (int after{ index+1 }; after < _length; ++after)
@@ -105,7 +120,8 @@ void IntArray::remove(int index)
     --_length;
 }
 
-int IntArray::find(const int num)
+template<class T>
+int IntArray<T>::find(const T num)
 {
     for(int i{ 0 }; i < _length ; i++)
     {
@@ -114,19 +130,20 @@ int IntArray::find(const int num)
     return -1;
 }
 
-void IntArray::bad_range(const int index)
+template<class T>
+void IntArray<T>::bad_range(const int index)
 {
-    if(index < 0) throw " меньше 0 \n";
-    if(index > _length) throw " больше длинны массива \n";
-
+    if((index < 0) || (index > _length)) throw MyException(" Invalid index");
 }
 
-void IntArray::bad_length(const int length)
+template<class T>
+void IntArray<T>::bad_length(const int length)
 {
-    if(length < 1) throw " меньше 1 \n";
+    if(length < 1) throw MyException(" Invalid index");
 }
 
-IntArray::IntArray(const IntArray& a)
+template<class T>
+IntArray<T>::IntArray(const IntArray& a)
 {
     reallocate(a.size());
 

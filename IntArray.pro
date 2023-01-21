@@ -8,4 +8,5 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
-    intarray.h
+    intarray.h \
+    myexception.h

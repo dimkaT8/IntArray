@@ -1,14 +1,11 @@
+#include "myexception.h"
 
-#pragma once
-#include <iostream>
-using namespace std;
-
-
+template <class T>
 class IntArray
 {
 private:
     int _length{};
-    int* _data{};
+    T* _data{};
 public:
     IntArray(int length);
     /// размер массива
@@ -20,15 +17,15 @@ public:
     /// изменить размер массива с сохранением элементов
     void resize(int newLength);
     /// записать в ячейку число
-    void insert(int value, int index);
+    void insert(T value, int index);
     /// удалить ячейку с индексом
     void remove(int index);
     /// вставить элемент в начало массива
-    void push_front(int value) { insert(value, 0);}
+    void push_front(T value) { insert(value, 0);}
     /// вставить элемент в конец массива
-    void push_back(int value) { insert(value, _length);}
+    void push_back(T value) { insert(value, _length);}
     /// найти число в массиве и вывести индекс найденного числа
-    int find(const int num);
+    int find(const T num);
     /// проверка к пренадлежности к диапазону массива
     void bad_range(const int index);
     void bad_length(const int length);
@@ -36,15 +33,21 @@ public:
 
     ~IntArray(){delete[] _data;};
 
-    int& operator[](int index)
+    //int& operator[](int index)
+    T& operator[](int index)
     {
         try
         {
             bad_range(index);
         }
-        catch (const char* exception)
+        catch (MyException &exc)
         {
-            cout << " Ошибка : число " << index << exception;
+            cout << "An array exception occurred (" << exc.what() << " " << index  << " )" <<endl;
+        }
+        // добавим std::exception , вдруг памяти не хватит !
+        catch (exception &exc)
+        {
+            cout << "Some other std::exception occurred (" << exc.what() << " )" << endl;
         }
         return _data[index];
     }
